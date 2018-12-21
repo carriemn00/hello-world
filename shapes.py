@@ -1,10 +1,9 @@
 # shapes.py
+# VERSION 4
 # Carrie Nguyen
 # CS151 F18
-# VERSION 3
 
 import turtle_interpreter as it
-import random
 
 class Shape:
 
@@ -14,6 +13,10 @@ class Shape:
 		self.angle = angle
 		self.color = color
 		self.string = istring
+		self.style = 'normal'
+		self.jitterSigma = 2
+		self.width = 1
+		self.dotSize = 2
  
 	def setColor(self, c):
 		self.color = c
@@ -26,85 +29,36 @@ class Shape:
 		
 	def setString(self, s):
 		self.string = s
+	
+	def setStyle(self, s):
+		self.style = s
+		
+	def setJitter(self, j):
+		self.jitterSigma = j
+		
+	def setWidth(self, w):
+		self.width = w
+	
+	def setDotSize(self, d):
+		self.dotSize = d
 
 	def draw(self, xpos, ypos, scale=1.0, orientation=0):
 		terp = it.TurtleInterpreter()
 		terp.place(xpos, ypos, orientation)
 		terp.color(self.color)
+		terp.setStyle(self.style)
+		terp.setJitter(self.jitterSigma)
+		terp.width(self.width)
 		terp.drawString(self.string, self.distance*scale, self.angle)
 	 
 class Square(Shape):
 
 	def __init__(self, distance=100, color=(0, 0, 0) ):
 		''' Initializes Square object '''
-		Shape.__init__(self, distance, 90, color, '{F-F-F-F-}')
-		
-class Rectangle(Shape):
-	
-	def __init__(self, distance=100, color=(0,0,0) ):
-		''' Initializes Rectangle object '''
-		Shape.__init__(self, distance, 90, color, '{F-FF-F-FF-}')
+		Shape.__init__(self, distance, 90, color, 'F-F-F-F-')
 		
 class Triangle(Shape):
 	
 	def __init__(self, distance=100, color=(0, 0, 0) ):
 		''' Initializes Triangle object '''
-		Shape.__init__(self, distance, 60, color, '{-F--F--F-}')
-
-class Trapezoid(Shape):
-	
-	def __init__(self, distance=100, color=(0, 0, 0) ):
-		''' Initializes Trapezoid object '''
-		Shape.__init__(self, distance, 60, color, '{-F-F-F-}')		
-		
-class Octagon(Shape):
-
-	def __init__(self, distance=100, color=(0, 0, 0) ): 
-		''' Initializes Octagon object '''
-		Shape.__init__(self, distance, 45, color, 'F-F-F-F-F-F-F-F-')
-		
-class Cross(Shape):
-	
-	def __init__(self, distance=100, color=(0, 0, 0) ):
-		''' Initializes Cross object '''
-		Shape.__init__(self, distance, 90, color, '{F-F-F+F-F-F+F-F-F+F-F-F+}')
-
-class Pentagon(Shape):
-	
-	def __init__(self, distance=100, color=(0, 0, 0) ): 
-		''' Initializes Pentagon object '''
-		Shape.__init__(self, distance, 72, color, 'F-F-F-F-F-')
-		
-class Star(Shape):
-	
-	def __init__(self, distance=100, color=(0, 0, 0) ):
-		''' Initializes Star object '''
-		Shape.__init__(self, distance, 72, color, '{F--F+F--F+F--F+F--F+F--F+}')
-
-def main():
-	""" test function that generates image that incorporates all shapes created in Shapes class"""
-	
-	sx = 500
-	sy = 500
-	terp = it.TurtleInterpreter(sx, sy)
-	
-	for i in range(5): 
-		octagon = Octagon(distance = 50)
-		octagon.draw(random.randint(-450,450),random.randint(300,400))
-
-	for i in range(5): 
-		cross = Cross(distance=25, color=(0,0.6,0.9))
-		cross.draw(random.randint(-450,450),random.randint(200,300))
-		
-	for i in range(5): 
-		pentagon = Pentagon(distance = 50)
-		pentagon.draw(random.randint(-450,450),random.randint(-100,0))
-		
-	for i in range(5): 
-		star = Star(distance=25, color=(0.5,0.7,0))
-		star.draw(random.randint(-450,450),random.randint(-300,-200))
-		
-	terp.hold()
-
-if __name__ == "__main__":
-	main()
+		Shape.__init__(self, distance, 120, color, 'F-F-F-')

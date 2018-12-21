@@ -1,5 +1,5 @@
 # lsystem.py
-# VERSION 3
+# VERSION 4
 # Carrie Nguyen
 # CS151F18
 
@@ -53,19 +53,106 @@ class Lsystem:
 		fp.close()
 		
 	def replace(self, istring):
-		''' scan through string, test each character to see if there is rule
-			if rule exists, then add replacement to new string
-			if no rule exists, add character to new string 
-		''' 
+		""" Replace all characters in the istring with strings from the
+			right-hand side of the appropriate rule. This version handles
+			parameterized rules.
+		"""
 		tstring = ''
-		for c in istring: 
-			if c in self.rules:
-				tstring += random.choice(self.rules[c])
+		parstring = ''
+		parval = None
+		pargrab = False
+
+		for c in istring:
+			if c == '(':
+				# put us into number-parsing-mode
+				pargrab = True
+				parstring = ''
+				continue
+			# elif the character is )
+			elif c == ')':
+				# put us out of number-parsing-mode
+				pargrab = False
+				parval = float(parstring)
+				continue
+			# elif we are in number-parsing-mode
+			elif pargrab:
+				# add this character to the number string
+				parstring += c
+				continue
+
+			if parval != None:
+				key = '(x)' + c
+				if key in self.rules:
+					replacement = random.choice(self.rules[key])
+					tstring += self.substitute( replacement, parval )
+				else:
+					if c in self.rules:
+						replacement = random.choice(self.rules[c])
+						tstring += self.insertmod( replacement, parstring, c )
+					else:
+						tstring += '(' + parstring + ')' + c
+				parval = None
 			else:
-				tstring += c 
-		#print(tstring) #TEST
+				if c in self.rules:
+					tstring += random.choice(self.rules[c])
+				else:
+					tstring += c
+
 		return tstring
-	
+		
+	def substitute(self, sequence, value ):
+		""" given: a sequence of parameterized symbols using expressions
+			of the variable x and a value for x
+			substitute the value for x and evaluate the expressions
+		"""
+
+		expr = ''
+		exprgrab = False
+
+		outsequence = ''
+
+		for c in sequence:
+
+			# parameter expression starts
+			if c == '(':
+				# set the state variable to True (grabbing the expression)
+				exprgrab = True
+				expr = ''
+				continue
+
+			# parameter expression ends
+			elif c == ')':
+				exprgrab = False
+				# create a function out of the expression
+				lambdafunc = eval( 'lambda x: ' + expr )
+				# execute the function and put the result in a (string)
+				newpar = '(' + str( lambdafunc( value ) ) + ')'
+				outsequence += newpar
+
+			# grabbing an expression
+			elif exprgrab:
+				expr += c
+
+			# not grabbing an expression and not a parenthesis
+			else:
+				outsequence += c 
+
+		return outsequence
+
+	def insertmod(self, sequence, modstring, symbol):
+		""" given: a sequence, a parameter string, a symbol 
+			inserts the parameter, with parentheses, 
+			before each
+			instance of the symbol in the sequence
+		"""
+		tstring = ''
+		for c in sequence:
+			if c == symbol:
+				# add the parameter string in parentheses
+				tstring += '(' + modstring + ')'
+			tstring += c
+		return tstring
+
 		
 	def buildString(self, iterations):
 		''' builds the lsystem string 

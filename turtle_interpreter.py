@@ -1,5 +1,5 @@
 # turtle_interpreter.py
-# VERSION 3
+# VERSION 4
 # Carrie Nguyen
 # CS151 F18
 
@@ -12,6 +12,9 @@ class TurtleInterpreter:
 	
 	def __init__(self, dx = 800, dy = 800):
 		''' Initializes TurtleInterpreter object '''
+		self.style = 'normal'
+		self.jitterSigma = 2
+		self.dotSize = 2
 		if TurtleInterpreter.initialized:
 			return
 		TurtleInterpreter.initialized = True
@@ -42,16 +45,54 @@ class TurtleInterpreter:
 		{ : begin fill
 		} : end fill
 		"""
+		
+		modstring = ''
+		modval = None
+		modgrab = False
 		stack = []
-		colorstack = []
+		colorstack = [] 
 			
 		for c in dstring:
+		
+			if c == '(':
+				modstring = ''
+				modgrab = True
+				continue
+			elif c == ')':
+				modval = float(modstring)
+				modgrab = False
+				continue
+			elif modgrab:
+				modstring += c
+				continue
+		
 			if c == 'F': 
-				turtle.forward(distance)
+				if modval == None:
+					self.forward(distance)
+				else:
+					self.forward(distance * modval)
+			if c == 'f': 
+				if modval == None:
+					self.forward(distance)
+				else:
+					self.forward(distance * modval)
 			elif c == '-':
-				turtle.right(angle)
+				if modval == None:
+					turtle.right(angle)
+				else:
+					turtle.right(modval)
 			elif c == '+':
-				turtle.left(angle)
+				if modval == None:
+					turtle.left(angle)
+				else:
+					turtle.left(modval)
+			elif c == '!':
+				if modval == None:
+					w = turtle.width()
+					if w > 1:
+						turtle.width(w-1)
+				else:
+					turtle.width(modval)
 			elif c == '[':
 				stack.append(turtle.position())
 				stack.append(turtle.heading())
@@ -92,7 +133,8 @@ class TurtleInterpreter:
 				turtle.begin_fill()
 			elif c == '}':
 				turtle.end_fill()
-				
+			
+			modval = None
 			turtle.update()
 
 	def hold(self):
@@ -133,4 +175,74 @@ class TurtleInterpreter:
 	def width(self, w): 
 		turtle.width(w)
 		
+	def setStyle(self, s):
+		self.style = s
+		
+	def setJitter(self, j):
+		self.jitterSigma = j
+		
+	def setDotSize(self, d):
+		self.dotSize = d
+		
+	def forward(self, distance):
+		if self.style is 'normal':
+			turtle.forward(distance)
+		elif self.style is 'jitter':
+			x0, y0 = turtle.position()
+			turtle.up()
+			turtle.forward(distance)
+			xf, yf = turtle.position()
+			curwidth = turtle.width()
+			
+			jx = random.gauss(0, self.jitterSigma)
+			jy = random.gauss(0, self.jitterSigma)
+			kx = random.gauss(0, self.jitterSigma)
+			ky = random.gauss(0, self.jitterSigma)
+			
+			turtle.width(curwidth + random.randint(0,2))
+			turtle.goto((x0 + jx), (y0 + jy))
+			turtle.down()
+			turtle.goto((xf + kx), (yf + ky))
+			turtle.up()
+			turtle.goto(xf, yf)
+			turtle.width(curwidth)
+			turtle.down()
+		elif self.style is 'jitter3':
+			x0, y0 = turtle.position()
+			turtle.up()
+			turtle.forward(distance)
+			xf, yf = turtle.position()
+			curwidth = turtle.width()
+			
+			for i in range(3):
+				jx = random.gauss(0,self.jitterSigma)
+				jy = random.gauss(0,self.jitterSigma)
+				kx = random.gauss(0, self.jitterSigma)
+				ky = random.gauss(0, self.jitterSigma)
+				turtle.width(curwidth + random.randint(0,2))
+				turtle.goto(x0+jx, y0+jy)
+				turtle.down()
+				turtle.goto((xf + kx), (yf + ky))
+				turtle.up()
+				turtle.goto(xf, yf)
+				turtle.width(curwidth)
+				turtle.down()
+		elif self.style is 'dotted':
+			x0, y0 = turtle.position()
+			turtle.up()
+			turtle.forward(distance)
+			xf, yf = turtle.position()
+			curwidth = turtle.width()
+			
+			dx = xf - x0
+			dy = yf - y0
+			
+			for 
+			turtle.down()
+			turtle.circle(self.dotSize)
+			turtle.up()
+			turtle.goto(xf, yf)
+			turtle.width(curwidth)
+			turtle.down()
+			
 		
